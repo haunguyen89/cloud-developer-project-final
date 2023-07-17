@@ -1,20 +1,34 @@
 import * as AWS from 'aws-sdk'
+// import * as AWSXRay from 'aws-xray-sdk'
 
 const AWSXRay = require('aws-xray-sdk')
 const XAWS = AWSXRay.captureAWS(AWS)
 
 // TODO: Implement the fileStogare logic
-export class AttachmentUtils {
+const s3BucketName = process.env.ATTACHMENTs_S3_BUCKET
+const urlExpiration = process.env.SIGNED_URL_EXPIRATION
 
+export class AttachmentUtils{
     constructor(
-        private readonly s3Client = new XAWS.S3({
-            signatureVersion: 'v4'
-        }),
-        private readonly todosBucket = process.env.ATTACHMENT_S3_BUCKET,
-        private readonly attachmentSignedUrlExpiration = process.env.SIGNED_URL_EXPIRATION,
+        private readonly s3 = new XAWS.S3({ signatureVersion: 'V4'}),
+        private readonly bucketName = s3BucketName,
+        private readonly expiration = urlExpiration,
         private readonly docClient = new XAWS.DynamoDB.DocumentClient(),
         private readonly todosTable = process.env.TODOS_TABLE
-    ) {
+        
+    ) {}
+
+    getAttachmentUrl(todoId: string) {
+        return `https://${this.bucketName}.s3.amazonaws.com/${todoId}`
+    }
+
+    getUploadUrl(todoId: string) {
+        const url = this.s3.getSignedUrl('putObject', {
+            Bucket: this.bucketName,
+            Key: todoId,
+            Expires: urlExpiration
+        })
+        return url as string
     }
 
     async updateTodoAttachmentUrl(todoId: string, userId: string, attachmentUrl: string){
@@ -33,11 +47,10 @@ export class AttachmentUtils {
     }
 
     generateAttachmentPresignedUrl(attachmentId: string) {
-        return this.s3Client.getSignedUrl('putObject', {
-            Bucket: this.todosBucket,
+        return this.s3.getSignedUrl('putObject', {
+            Bucket: this.bucketName,
             Key: attachmentId,
-            Expires: parseInt(this.attachmentSignedUrlExpiration)
+            Expires: parseInt(this.expiration)
         })
     }
-
 }

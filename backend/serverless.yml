@@ -1,7 +1,8 @@
 # TODO: Change the name of the org 
 org: ncthau
-app: serverless-todo-app-haunct
-service: serverless-todo-app-haunct
+app: serverless-todo-app-final-haunct
+service: serverless-todo-app-final-haunct
+
 frameworkVersion: '3.33.0'
 
 plugins:
@@ -13,7 +14,7 @@ plugins:
 provider:
   name: aws
   runtime: nodejs16.x
-  lambdaHashingVersion: '20201221'
+  # lambdaHashingVersion: '20201221'
 
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
@@ -29,14 +30,14 @@ provider:
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
     ATTACHMENT_S3_BUCKET: serverless-c4-todo-images-821471615050-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
-    AUTH_0_SECRET: anxyDWBPrfngwx_aT4zKzGpXp6TekkUowpD2NuSXmo5D3bLpRlerDsLGG9I2TMEh
+    AUTH_0_SECRET: C-celURsvbbe_-Bkrn5DZwiuxinhqSASaB0Jfw00OBOVZa2IqjTLAtqCjLoSZvS1
 
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - s3:PutObject
-        - s3:GetObject
-      Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*
+  # iamRoleStatements:
+  #   - Effect: Allow
+  #     Action:
+  #       - s3:PutObject
+  #       - s3:GetObject
+  #     Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*
 
   logs:
     # Enable API Gateway logs
